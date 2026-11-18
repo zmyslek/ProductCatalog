@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<!-- TEMPORARY test frontend for the REST API. Served as a static file: open http://127.0.0.1:8000/temporary-frontend.html -->
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Temporary Frontend</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 900px; margin: 0 auto; padding: 16px; }
+        section { border: 1px solid #ccc; border-radius: 6px; padding: 12px 16px; margin-bottom: 16px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { text-align: left; padding: 4px 6px; border-bottom: 1px solid #eee; }
+        td.num, th.num { text-align: right; }
+        .error { color: #b00020; }
+        a { cursor: pointer; color: #0645ad; }
+        pre { background: #f5f5f5; padding: 8px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Temporary Frontend</h1>
+
+    <section>
+        <h2>Cart</h2>
+        <form id="cart-form">
+            <label>Cart ID <input id="cart-id" type="number" min="1" value="1" required></label>
+            <button type="submit">Load cart</button>
+        </form>
+        <div id="cart-result"></div>
+    </section>
+
+    <section>
+        <h2>Products</h2>
+        <div id="products"></div>
+        <button id="prev">Previous</button>
+        <span id="page-info"></span>
+        <button id="next">Next</button>
+        <h3>Product detail</h3>
+        <pre id="product-detail">Click a product title.</pre>
+    </section>
+
+    <script>
+        const euro = (n) => '€ ' + Number(n).toFixed(2);
+        const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+
+        async function api(path) {
+            const res = await fetch('/api' + path, { headers: { Accept: 'application/json' } });
+            const body = await res.json();
+            if (!res.ok) throw new Error(body.message || 'Request failed (' + res.status + ')');
+            return body;
+        }
+
+        // Cart: input a cart ID, fetch it, show the items with final prices.
+        document.getElementById('cart-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const out = document.getElementById('cart-result');
+            out.textContent = 'Loading...';
+            try {
+                const { data: cart } = await api('/carts/' + document.getElementById('cart-id').value);
+                const rows = cart.items.map((i) => `
+                    <tr><td>${esc(i.product_name)}</td><td class="num">${i.quantity}</td>
+                    <td class="num">${euro(i.unit_price)}</td><td class="num">${i.discount_percentage ?? 0}%</td>
+                    <td class="num">${euro(i.final_price)}</td></tr>`).join('');
+                out.innerHTML = `
+                    <p>Cart #${cart.id}, user: ${esc(cart.user?.name)}</p>
+                    <table>
+                        <tr><th>Product</th><th class="num">Qty</th><th class="num">Unit price</th><th class="num">Discount</th><th class="num">Final price</th></tr>
+                        ${rows || '<tr><td colspan="5">This cart is empty.</td></tr>'}
+                        <tr><th colspan="4">Total</th><th class="num">${euro(cart.total)}</th></tr>
+                    </table>`;
+            } catch (err) {
+                out.innerHTML = `<p class="error">${esc(err.message)}</p>`;
+            }
+        });
+
+        // Products: paginated list of active products, click one for its details.
+        let page = 1, lastPage = 1;
+        async function loadProducts() {
+            const out = document.getElementById('products');
+            try {
+                const res = await api('/products?per_page=10&page=' + page);
+                lastPage = res.meta.last_page;
+                out.innerHTML = `<table>
+                    <tr><th>Title</th><th>Category</th><th class="num">Price</th><th class="num">Discounted</th></tr>
+                    ${res.data.map((p) => `<tr><td><a data-id="${p.id}">${esc(p.title)}</a></td><td>${esc(p.category?.name)}</td>
+                        <td class="num">${euro(p.price)}</td><td class="num">${euro(p.discounted_price)}</td></tr>`).join('')}
+                </table>`;
+                document.getElementById('page-info').textContent = `Page ${page} of ${lastPage}`;
+                document.getElementById('prev').disabled = page <= 1;
+                document.getElementById('next').disabled = page >= lastPage;
+            } catch (err) {
+                out.innerHTML = `<p class="error">${esc(err.message)}</p>`;
+            }
+        }
+        document.getElementById('prev').addEventListener('click', () => { page--; loadProducts(); });
+        document.getElementById('next').addEventListener('click', () => { page++; loadProducts(); });
+        document.getElementById('products').addEventListener('click', async (e) => {
+            const id = e.target.dataset.id;
+            if (!id) return;
+            const out = document.getElementById('product-detail');
+            try {
+                out.textContent = JSON.stringify((await api('/products/' + id)).data, null, 2);
+            } catch (err) {
+                out.textContent = err.message;
+            }
+        });
+        loadProducts();
+    </script>
+</body>
+</html>
