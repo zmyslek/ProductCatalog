@@ -34,3 +34,32 @@ clear README.md with instructions for:
 2.  Presentation (30 minutes): Make clear how you went about it and explain the different 
 choices you made. Not necessarily a powerpoint presentation ;).. We would rather have 
 you opening the code and walking us through.
+
+## Local setup
+
+```powershell
+cd ProductCatalog
+Copy-Item .env.example .env
+composer install
+npm install
+npm run build
+php artisan key:generate
+php artisan serve
+```
+
+Set `DB_DATABASE` in `.env` to the absolute path of `database-test/yoursurprise_test.db`.
+
+## SonarQube
+
+From the workspace root, start SonarQube and PostgreSQL:
+
+```powershell
+docker compose up -d
+```
+
+Open `http://localhost:9000` and change the default `admin` password. Create a local project with key `YourSurprise_ProductCatalog`, then generate a token. Install SonarScanner and run:
+
+```powershell
+cd ProductCatalog
+sonar-scanner "-Dsonar.host.url=http://localhost:9000" "-Dsonar.token=<token>"
+```
