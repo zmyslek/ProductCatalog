@@ -3,4 +3,5 @@
 import { renderLayout } from './components/layout.js';
 import { startRouter } from './router.js';
 
-//
+renderLayout();
+startRouter();

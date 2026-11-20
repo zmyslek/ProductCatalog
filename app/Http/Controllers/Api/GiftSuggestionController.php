@@ -9,6 +9,7 @@ use App\Models\Cart;
 use App\Services\GiftSuggestionService;
 use App\Exceptions\LlmUnavailableException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
 
 class GiftSuggestionController extends Controller
 {
@@ -22,13 +23,17 @@ class GiftSuggestionController extends Controller
                 ],
             ]);
         } catch (LlmUnavailableException $exception) {
+            Log::warning('Gift suggestions unavailable', [
+                'cart_id' => $cart->id,
+                'error' => $exception->getMessage(),
+            ]);
+
             return response()->json([
+                'message' => 'Gift suggestions are temporarily unavailable.',
                 'data' => [
                     'cart_id' => $cart->id,
-                    'suggestions' => [],
                 ],
-            ]);
+            ], 503);
         }
     }
 }
-?>

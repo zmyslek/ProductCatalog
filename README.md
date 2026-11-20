@@ -49,6 +49,21 @@ php artisan serve
 
 Set `DB_DATABASE` in `.env` to the absolute path of `database-test/yoursurprise_test.db`.
 
+The application starts at `http://localhost:8000` and serves the styled cart frontend
+from `resources/html/index.html`. Product browsing is available at `/products`, and
+product details are available at `/products/{id}`. These pages use the same visual
+language and consume the Laravel API under `/api`.
+The API is available under `/api`: products, categories, carts, and cart gift suggestions.
+For Docker, use `docker compose up --build`; the compose file mounts the database at
+`/data/yoursurprise_test.db`. Do not commit `.env` or API keys.
+
+Run the automated checks with:
+
+```powershell
+php artisan test
+npm run build
+```
+
 ## SonarQube
 
 From the workspace root, start PostgreSQL and SonarQube:

@@ -2,10 +2,17 @@
 
 namespace App\Services;
 
-// Works out prices: applies discount percentages to unit prices and calculates line totals and cart totals.
+use App\Support\Price;
 
-class PriceCalculator
+final class PriceCalculator
 {
-    //
+    public function discounted(float $amount, ?float $discountPercentage): float
+    {
+        return Price::applyDiscount($amount, $discountPercentage);
+    }
+
+    public function lineTotal(float $unitPrice, int $quantity, ?float $discountPercentage): float
+    {
+        return $this->discounted($unitPrice * $quantity, $discountPercentage);
+    }
 }
-?>

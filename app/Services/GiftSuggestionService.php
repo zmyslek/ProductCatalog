@@ -42,7 +42,7 @@ class GiftSuggestionService
             throw new \App\Exceptions\LlmUnavailableException('The gift provider returned invalid suggestions.');
         }
 
-        return array_values(array_filter(array_map(function ($suggestion) {
+        $suggestions = array_values(array_filter(array_map(function ($suggestion) {
             if (!is_array($suggestion)) {
                 return null;
             }
@@ -50,6 +50,11 @@ class GiftSuggestionService
             $reason = trim((string) ($suggestion['reason'] ?? ''));
             return $title !== '' ? ['title' => $title, 'reason' => $reason] : null;
         }, $decoded['suggestions'])));
+
+        if (count($suggestions) < 3) {
+            throw new \App\Exceptions\LlmUnavailableException('The gift provider returned fewer than three suggestions.');
+        }
+
+        return array_slice($suggestions, 0, 3);
     }
 }
-?>
