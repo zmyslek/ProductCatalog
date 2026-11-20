@@ -55,6 +55,10 @@
         @keyframes shimmer { to { background-position:-200% 0; } }
         dialog::backdrop { background: rgba(24,48,75,.45); backdrop-filter: blur(4px); }
         @media (prefers-reduced-motion: reduce) { *,*::before,*::after { animation-duration:.01ms!important; animation-iteration-count:1!important; transition-duration:.01ms!important; } }
+        .loading-skeleton { background:linear-gradient(90deg,rgba(24,48,75,.08) 25%,rgba(230,165,179,.22) 50%,rgba(24,48,75,.08) 75%); background-size:200% 100%; animation:loading-shimmer 1.15s infinite linear; }
+        @keyframes loading-shimmer { to { background-position:-200% 0; } }
+        .loading-spinner { width:22px; height:22px; border:3px solid rgba(255,255,255,.18); border-top-color:#e6a5b3; border-radius:50%; animation:loading-spin .75s linear infinite; }
+        @keyframes loading-spin { to { transform:rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -73,7 +77,7 @@
             <div class="flex items-center gap-3">
             <a href="/" class="rounded-full px-3 py-2 text-sm font-bold text-ink transition hover:bg-[#f7e2e7]">Home</a>
             <a href="/products" class="rounded-full px-3 py-2 text-sm font-bold text-ink transition hover:bg-[#f7e2e7]">Browse gifts</a>
-            <a href="#cart" class="rounded-full px-3 py-2 text-sm font-bold text-ink transition hover:bg-[#f7e2e7]">My cart</a>
+            <a href="/cart" class="rounded-full px-3 py-2 text-sm font-bold text-ink transition hover:bg-[#f7e2e7]">My cart</a>
             </div>
         </div>
     </header>
@@ -87,7 +91,7 @@
                 </div>
                 <p id="cart-range" class="hidden text-sm text-ink/45 sm:block">Loading carts...</p>
             </div>
-            <div class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_260px]">
+            <div class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_420px] xl:grid-cols-[minmax(0,1fr)_480px]">
                 <div class="soft-card rounded-[28px] border border-ink/[.07] bg-white/90 p-5 shadow-[0_12px_35px_rgba(24,48,75,.06)] backdrop-blur-sm sm:p-7">
                     <form id="cart-form" class="flex flex-col gap-3 sm:flex-row">
                         <label class="sr-only" for="cart-id">Cart ID</label>
@@ -135,8 +139,9 @@
                 if (cartIds.length) {
                     input.min = String(Math.min(...cartIds));
                     input.max = String(Math.max(...cartIds));
-                    input.value = String(cartIds[0]);
+                    input.value = cartIds.includes(1) ? '1' : String(cartIds[0]);
                     document.getElementById('cart-range').textContent = `${cartIds.length} carts available · IDs ${Math.min(...cartIds)}–${Math.max(...cartIds)}`;
+                    document.getElementById('cart-form').requestSubmit();
                 } else {
                     input.disabled = true;
                     document.getElementById('cart-range').textContent = 'No carts available';
@@ -156,8 +161,10 @@
                 return;
             }
             const suggestions = document.getElementById('gift-suggestions');
-            out.innerHTML = '<div class="skeleton h-32 rounded-2xl"></div>';
-            suggestions.innerHTML = '<div class="space-y-3"><div class="skeleton h-12 rounded-xl"></div><div class="skeleton h-12 rounded-xl"></div><div class="skeleton h-12 rounded-xl"></div></div>';
+            out.setAttribute('aria-busy','true');
+            out.innerHTML = '<div class="loading-skeleton h-32 rounded-2xl"></div>';
+            suggestions.setAttribute('aria-busy','true');
+            suggestions.innerHTML = '<div class="flex items-center gap-3 rounded-2xl border border-white/[.08] bg-white/[.055] px-4 py-4"><span class="loading-spinner"></span><span>Finding thoughtful matches...</span></div><div class="mt-3 space-y-3"><div class="loading-skeleton h-12 rounded-xl"></div><div class="loading-skeleton h-12 rounded-xl"></div><div class="loading-skeleton h-12 rounded-xl"></div></div>';
             try {
                 const { data:cart } = await api('/carts/' + cartId);
                 const rows = cart.items.map(i => `
@@ -177,6 +184,7 @@
                             <tfoot><tr><th colspan="4" class="px-3 pt-5 text-right text-sm text-ink/55">Total</th><th class="px-3 pt-5 text-right text-lg text-coral">${euro(cart.total)}</th></tr></tfoot>
                         </table>
                     </div>`;
+                out.setAttribute('aria-busy','false');
                 try {
                     const giftBody = await api('/carts/' + cartId + '/gift-suggestions');
                     suggestions.innerHTML = giftBody.data.suggestions.slice(0, 3).map(gift => `
@@ -187,6 +195,7 @@
                 } catch (err) {
                     suggestions.innerHTML = `<p class="text-sm text-white/60">${esc(err.message)}</p>`;
                 }
+                suggestions.setAttribute('aria-busy','false');
             } catch (err) {
                 out.innerHTML = `<p class="rounded-2xl bg-[#fff0f1] p-4 text-sm font-bold text-coral">${esc(err.message)}</p>`;
             }

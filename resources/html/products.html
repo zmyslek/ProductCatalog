@@ -8,26 +8,38 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/catalog.css">
+    <link rel="stylesheet" href="/catalog.css?v=20261120-2">
 </head>
 <body>
     <div class="topbar">Made personal, made with love <span>|</span> Free delivery from €50</div>
     <header><nav>
         <a class="brand" href="/"><span class="mark"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M12 8v13M3 12h18"/><path d="M12 8H8.5A2.5 2.5 0 1 1 11 5.5C11 7 12 8 12 8zm0 0h3.5A2.5 2.5 0 1 0 13 5.5C13 7 12 8 12 8z"/></svg></span>YourSurprise</a>
-        <div class="nav-actions"><a href="/">Home</a><a href="/products">Browse gifts</a><a href="/#cart">My cart</a></div>
+        <div class="nav-actions"><a href="/">Home</a><a href="/products">Browse gifts</a><a href="/cart">My cart</a></div>
     </nav></header>
     <main>
-        <div class="wrap">
-            <p class="eyebrow">Popular today</p>
-            <h1 class="font-rounded">Gift ideas</h1>
-            <p class="intro">Browse active products from the catalogue and open any item for its full details, category, price, and delivery information.</p>
-            <section class="panel">
-                <div class="filters">
-                    <strong id="result-count">Loading products...</strong>
-                    <label>Category <select id="category-filter"><option value="">All categories</option></select></label>
+        <div class="catalog-wrap">
+            <section class="catalog-hero">
+                <p class="eyebrow">Gift catalogue</p>
+                <h1 class="font-rounded">Find something<br>worth smiling about</h1>
+                <p class="intro">Thoughtful gifts for birthdays, celebrations, thank-yous and every ordinary day that deserves a little more joy.</p>
+            </section>
+            <section class="catalog-panel">
+                <div class="catalog-toolbar">
+                    <strong id="result-count">Loading gifts...</strong>
+                    <div class="toolbar-right">
+                        <input id="product-search" class="search-input" type="search" placeholder="Search gifts..." aria-label="Search gifts">
+                        <select id="sort-products" class="toolbar-select" aria-label="Sort products">
+                            <option value="featured">Featured</option>
+                            <option value="price-low">Price: low to high</option>
+                            <option value="price-high">Price: high to low</option>
+                            <option value="discount">Best discount</option>
+                        </select>
+                        <select id="category-filter" hidden><option value="">All categories</option></select>
+                    </div>
                 </div>
-                <div id="product-result" class="table-wrap" aria-live="polite"></div>
-                <div class="pagination"><button id="previous" disabled>← Previous</button><span id="page-info">Page 1</span><button id="next" disabled>Next →</button></div>
+                <div id="category-pills" class="category-pills" aria-label="Product categories"></div>
+                <div id="product-result" aria-live="polite"></div>
+                <div class="pagination"><button id="previous" disabled>← Previous</button><span id="page-info" class="page-number">Page 1</span><button id="next" disabled>Next →</button></div>
             </section>
         </div>
     </main>
@@ -36,21 +48,77 @@
         const euro = value => new Intl.NumberFormat('en-GB',{style:'currency',currency:'EUR'}).format(Number(value));
         const esc = value => String(value ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
         async function api(path) { const response=await fetch('/api'+path,{headers:{Accept:'application/json'}}); const text=await response.text(); let body; try { body=text?JSON.parse(text):{}; } catch { throw new Error('The API returned an invalid response.'); } if(!response.ok) throw new Error(body.message||`Request failed (${response.status})`); return body; }
-        let page=1, lastPage=1, category='';
-        async function loadCategories() { const body=await api('/categories?per_page=100'); document.getElementById('category-filter').innerHTML='<option value="">All categories</option>'+body.data.map(item=>`<option value="${item.id}">${esc(item.name)}</option>`).join(''); }
+        let page=1, lastPage=1, category='', searchTimer;
+        let allSearchProducts=[];
+        async function loadCategories() {
+            const body=await api('/categories?per_page=100');
+            document.getElementById('category-filter').innerHTML='<option value="">All categories</option>'+body.data.map(item=>`<option value="${item.id}">${esc(item.name)}</option>`).join('');
+            document.getElementById('category-pills').innerHTML='<button class="category-pill active" data-category="">All gifts</button>'+body.data.map(item=>`<button class="category-pill" data-category="${item.id}">${esc(item.name)}</button>`).join('');
+            document.querySelectorAll('.category-pill').forEach(button=>button.addEventListener('click',()=>{
+                document.querySelectorAll('.category-pill').forEach(pill=>pill.classList.remove('active'));
+                button.classList.add('active');
+                category=button.dataset.category;
+                document.getElementById('category-filter').value=category;
+                page=1;
+                loadProducts();
+            }));
+        }
+        function sortedProducts(products) {
+            const sort=document.getElementById('sort-products').value;
+            return [...products].sort((a,b)=>{
+                if(sort==='price-low') return Number(a.discounted_price)-Number(b.discounted_price);
+                if(sort==='price-high') return Number(b.discounted_price)-Number(a.discounted_price);
+                if(sort==='discount') return Number(b.discount_percentage)-Number(a.discount_percentage);
+                return a.id-b.id;
+            });
+        }
+        function renderCards(products) {
+            const result=document.getElementById('product-result');
+            if(!products.length) { result.innerHTML='<div class="error">No gifts match your selection.</div>'; return; }
+            result.innerHTML=`<div class="catalog-grid">${sortedProducts(products).map(product=>`
+                <a class="gift-card" href="/products/${product.id}">
+                    <div class="gift-image"><img src="${esc(product.image)}" alt="${esc(product.title)}" loading="lazy"></div>
+                    ${product.discount_percentage>0?`<span class="gift-discount">-${Math.round(product.discount_percentage)}%</span>`:''}
+                    <div class="gift-body">
+                        <span class="gift-category">${esc(product.category?.name||'Uncategorised')}</span>
+                        <h2 class="gift-title">${esc(product.title)}</h2>
+                        <div class="gift-bottom">
+                            <div><span class="gift-price">${euro(product.discounted_price)}</span>${product.discount_percentage>0?`<span class="gift-original">${euro(product.price)}</span>`:''}</div>
+                        </div>
+                    </div>
+                    <span class="arrow">→</span>
+                </a>`).join('')}</div>`;
+        }
         async function loadProducts() {
-            const result=document.getElementById('product-result'); result.innerHTML='<p class="muted">Loading products...</p>';
+            const result=document.getElementById('product-result'); result.innerHTML='<div class="catalog-grid">'+Array.from({length:6},()=>'<div class="gift-card"><div class="skeleton" style="height:255px"></div><div class="gift-body"><div class="skeleton" style="height:12px;width:35%;margin-bottom:12px"></div><div class="skeleton" style="height:44px"></div></div></div>').join('')+'</div>';
             try {
-                const query=`/products?per_page=10&page=${page}${category?`&category_id=${encodeURIComponent(category)}`:''}`;
+                const query=`/products?per_page=9&page=${page}${category?`&category_id=${encodeURIComponent(category)}`:''}`;
                 const body=await api(query); lastPage=body.meta.last_page;
                 document.getElementById('result-count').textContent=`${body.meta.total} active products`;
-                result.innerHTML=`<table><thead><tr><th>Title</th><th>Category</th><th>Price</th><th>Discounted</th></tr></thead><tbody>${body.data.map(product=>`<tr><td><a class="product-link" href="/products/${product.id}">${esc(product.title)}</a></td><td class="muted">${esc(product.category?.name||'Uncategorised')}</td><td class="${product.discount_percentage>0?'discount':''}">${euro(product.price)}</td><td class="coral">${euro(product.discounted_price)}</td></tr>`).join('')}</tbody></table>`;
+                allSearchProducts=body.data;
+                const search=document.getElementById('product-search').value.trim().toLowerCase();
+                const visible=search?allSearchProducts.filter(product=>(`${product.title} ${product.category?.name||''}`).toLowerCase().includes(search)):allSearchProducts;
+                renderCards(visible);
                 document.getElementById('page-info').textContent=`Page ${page} of ${lastPage}`; document.getElementById('previous').disabled=page===1; document.getElementById('next').disabled=page===lastPage;
             } catch(error) { result.innerHTML=`<div class="error">${esc(error.message)}</div>`; }
         }
         document.getElementById('category-filter').onchange=event=>{category=event.target.value;page=1;loadProducts();};
-        document.getElementById('previous').onclick=()=>{if(page>1){page--;loadProducts();}};
-        document.getElementById('next').onclick=()=>{if(page<lastPage){page++;loadProducts();}};
+        document.getElementById('product-search').oninput=event=>{
+            clearTimeout(searchTimer);
+            searchTimer=setTimeout(()=>{
+                const search=event.target.value.trim().toLowerCase();
+                const cards=allSearchProducts.filter(product=>(`${product.title} ${product.category?.name||''}`).toLowerCase().includes(search));
+                document.getElementById('result-count').textContent=`${cards.length} matching products`;
+                renderCards(cards);
+            },180);
+        };
+        document.getElementById('sort-products').onchange=()=>{
+            const search=document.getElementById('product-search').value.trim().toLowerCase();
+            const cards=search?allSearchProducts.filter(product=>(`${product.title} ${product.category?.name||''}`).toLowerCase().includes(search)):allSearchProducts;
+            renderCards(cards);
+        };
+        document.getElementById('previous').onclick=()=>{if(page>1){page--;loadProducts();document.querySelector('.catalog-panel').scrollIntoView({behavior:'smooth',block:'start'});}};
+        document.getElementById('next').onclick=()=>{if(page<lastPage){page++;loadProducts();document.querySelector('.catalog-panel').scrollIntoView({behavior:'smooth',block:'start'});}};
         Promise.all([loadCategories(),loadProducts()]).catch(error=>document.getElementById('product-result').innerHTML=`<div class="error">${esc(error.message)}</div>`);
     </script>
 </body>

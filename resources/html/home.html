@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>YourSurprise | Personal gifts for every moment</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: { extend: {
+                colors: { ink:'#18304b', coral:'#e6a5b3', cream:'#fffaf7', sky:'#75c7e7' },
+                fontFamily: { rounded:['Nunito','ui-rounded','system-ui','sans-serif'], sans:['DM Sans','system-ui','sans-serif'] }
+            }}
+        };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body { min-height:100vh; display:flex; flex-direction:column; font-family:'DM Sans',sans-serif; background:radial-gradient(circle at 18% 18%,rgba(117,199,231,.12),transparent 22%),#fffaf7; color:#18304b; }
+        main { flex:1 0 auto; overflow:hidden; }
+        .font-rounded { font-family:'Nunito',ui-rounded,system-ui,sans-serif; }
+        .hero-glow { background:radial-gradient(circle at 76% 32%,rgba(230,165,179,.45),transparent 29%),radial-gradient(circle at 32% 80%,rgba(117,199,231,.20),transparent 28%); }
+        .soft-card { transition:transform .3s ease, box-shadow .3s ease; }
+        .soft-card:hover { transform:translateY(-4px); box-shadow:0 18px 45px rgba(24,48,75,.10); }
+    </style>
+</head>
+<body>
+    <div class="bg-ink px-4 py-2.5 text-center text-xs font-medium text-white sm:text-sm">Made personal, made with love <span class="mx-3 text-white/35">|</span> Free delivery from €50</div>
+    <header class="sticky top-0 z-40 border-b border-ink/10 bg-cream/95 backdrop-blur-md">
+        <div class="mx-auto flex h-[76px] max-w-[1280px] items-center justify-between px-5 lg:px-8">
+            <a href="/" class="flex items-center gap-2" aria-label="YourSurprise home">
+                <span class="grid h-10 w-10 rotate-[-7deg] place-items-center rounded-[14px] bg-coral text-white shadow-[3px_3px_0_#18304b]">
+                    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M12 8v13M3 12h18"/><path d="M12 8H8.5A2.5 2.5 0 1 1 11 5.5C11 7 12 8 12 8zm0 0h3.5A2.5 2.5 0 1 0 13 5.5C13 7 12 8 12 8z"/></svg>
+                </span>
+                <span class="font-rounded text-[27px] font-black tracking-tight">YourSurprise</span>
+            </a>
+            <nav class="flex items-center gap-1">
+                <a href="/products" class="rounded-full px-3 py-2 text-sm font-bold transition hover:bg-[#f7e2e7]">Browse gifts</a>
+                <a href="/cart" class="rounded-full bg-ink px-4 py-2 text-sm font-bold text-white transition hover:bg-coral">My cart</a>
+            </nav>
+        </div>
+    </header>
+    <main>
+        <section class="hero-glow">
+            <div class="mx-auto grid max-w-[1280px] items-center gap-10 px-5 py-20 lg:grid-cols-[1.05fr_.95fr] lg:px-8 lg:py-28">
+                <div>
+                    <p class="mb-3 text-sm font-bold text-coral">Gifts made personal</p>
+                    <h1 class="font-rounded text-5xl font-black leading-[.98] sm:text-6xl lg:text-7xl">Small moments.<br><span class="text-coral">Big surprises.</span></h1>
+                    <p class="mt-7 max-w-xl text-lg leading-8 text-ink/65">Find something thoughtful for birthdays, celebrations, and all the ordinary days worth making special.</p>
+                    <div class="mt-9 flex flex-wrap gap-3">
+                        <a href="/products" class="rounded-full bg-ink px-7 py-3.5 text-sm font-bold text-white transition hover:-translate-y-0.5 hover:bg-coral">Explore gifts <span class="ml-2">→</span></a>
+                        <a href="/cart" class="rounded-full border border-ink/15 bg-white/70 px-7 py-3.5 text-sm font-bold transition hover:border-coral hover:bg-white">Look up my cart</a>
+                    </div>
+                </div>
+                <div class="relative mx-auto w-full max-w-[500px]">
+                    <div class="absolute -right-3 top-4 h-24 w-24 rounded-full border-[14px] border-coral/25"></div>
+                    <div class="relative rotate-[-3deg] rounded-[36px] border border-ink/[.07] bg-white/90 p-8 shadow-[0_22px_60px_rgba(24,48,75,.12)]">
+                        <div class="rounded-[26px] bg-[#dceff3] p-10 text-center">
+                            <div class="mx-auto grid h-28 w-28 rotate-[6deg] place-items-center rounded-[30px] bg-coral text-white shadow-[7px_7px_0_#18304b]">
+                                <svg width="65" height="65" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M12 8v13M3 12h18"/><path d="M12 8H8.5A2.5 2.5 0 1 1 11 5.5C11 7 12 8 12 8zm0 0h3.5A2.5 2.5 0 1 0 13 5.5C13 7 12 8 12 8z"/></svg>
+                            </div>
+                            <p class="mt-8 font-rounded text-2xl font-black">Made for your moment</p>
+                            <p class="mt-2 text-sm text-ink/55">A little joy, ready to unwrap.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer class="border-t border-ink/10 bg-white"><div class="mx-auto flex max-w-[1280px] flex-col gap-4 px-5 py-8 text-sm text-ink/60 sm:flex-row sm:items-center sm:justify-between lg:px-8"><span class="font-rounded text-xl font-black text-ink">YourSurprise</span><span>For all life's special moments.</span></div></footer>
+</body>
+</html>
