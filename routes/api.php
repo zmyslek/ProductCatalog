@@ -11,5 +11,6 @@ Route::get('products/{product}', [ProductController::class, 'show']);
 Route::get('categories', [CategoryController::class, 'index']);
 Route::get('categories/{category}', [CategoryController::class, 'show']);
 
+Route::get('carts', [CartController::class, 'index']);
 Route::get('carts/{cart}', [CartController::class, 'show'])->name('carts.show');
 Route::get('carts/{cart}/gift-suggestions', [GiftSuggestionController::class, 'show'])->name('carts.gift-suggestions');

@@ -6,6 +6,9 @@ namespace App\Services\Llm;
 
 class OpenAiClient implements LlmClient
 {
-    //
+    public function generate(string $prompt): string
+    {
+        throw new \App\Exceptions\LlmUnavailableException('OpenAI is not configured.');
+    }
 }
 ?>

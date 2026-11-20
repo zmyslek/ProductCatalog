@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>YourSurprise | Product Catalogue</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        ink: '#18304b',
+                        coral: '#e6a5b3',
+                        cream: '#fffaf7',
+                        sky: '#75c7e7'
+                    },
+                    fontFamily: {
+                        rounded: ['Nunito', 'ui-rounded', 'system-ui', 'sans-serif'],
+                        sans: ['DM Sans', 'system-ui', 'sans-serif']
+                    }
+                }
+            }
+        };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body { min-height:100vh; display:flex; flex-direction:column; font-family:'DM Sans',sans-serif; background:radial-gradient(circle at 18% 18%,rgba(117,199,231,.10),transparent 22%),#fffaf7; color:#18304b; }
+        main { flex:1 0 auto; position:relative; overflow:hidden; }
+        footer { margin-top:auto; }
+        main::before, main::after { content:''; position:absolute; z-index:-1; border-radius:999px; pointer-events:none; opacity:.28; filter:blur(.2px); }
+        main::before { width:180px; height:180px; right:-70px; top:180px; background:#f1ccd5; animation:drift 14s ease-in-out infinite; }
+        main::after { width:130px; height:130px; left:-55px; bottom:40px; background:#c5e6f1; animation:drift 18s ease-in-out infinite reverse; }
+        @keyframes drift { 0%,100% { transform:translate3d(0,0,0) scale(1); } 50% { transform:translate3d(18px,-28px,0) scale(1.08); } }
+        .font-rounded { font-family: 'Nunito', ui-rounded, system-ui, sans-serif; }
+        .reveal { animation: reveal .55s cubic-bezier(.2,.7,.2,1) both; }
+        @keyframes reveal { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+        .float { animation: float 5s ease-in-out infinite; }
+        @keyframes float { 0%,100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-10px) rotate(2deg); } }
+        .marquee { animation: marquee 22s linear infinite; width: max-content; }
+        @keyframes marquee { to { transform: translateX(-50%); } }
+        .soft-card { transition:transform .35s cubic-bezier(.2,.7,.2,1), box-shadow .35s ease, border-color .35s ease; }
+        .soft-card:hover { transform:translateY(-3px); box-shadow:0 18px 45px rgba(24,48,75,.09); border-color:rgba(230,165,179,.18); }
+        .cart-reveal { animation:cartReveal .45s cubic-bezier(.2,.7,.2,1) both; }
+        @keyframes cartReveal { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+        .match-item { animation:matchIn .42s cubic-bezier(.2,.7,.2,1) both; }
+        .match-item:nth-child(2) { animation-delay:.08s; }
+        .match-item:nth-child(3) { animation-delay:.16s; }
+        @keyframes matchIn { from { opacity:0; transform:translateX(8px); } to { opacity:1; transform:none; } }
+        input[type="number"]::-webkit-inner-spin-button { opacity:.35; }
+        .skeleton { background: linear-gradient(90deg,#edf1f3 25%,#f8fafb 50%,#edf1f3 75%); background-size:200% 100%; animation: shimmer 1.3s infinite; }
+        @keyframes shimmer { to { background-position:-200% 0; } }
+        dialog::backdrop { background: rgba(24,48,75,.45); backdrop-filter: blur(4px); }
+        @media (prefers-reduced-motion: reduce) { *,*::before,*::after { animation-duration:.01ms!important; animation-iteration-count:1!important; transition-duration:.01ms!important; } }
+    </style>
+</head>
+<body>
+    <div class="bg-ink px-4 py-2.5 text-center text-xs font-medium text-white sm:text-sm">
+        Made personal, made with love
+    </div>
+
+    <header class="sticky top-0 z-40 border-b border-ink/10 bg-cream/95 backdrop-blur-md">
+        <div class="mx-auto flex h-[76px] max-w-[1280px] items-center justify-between px-5 lg:px-8">
+            <a href="#" class="flex items-center gap-2" aria-label="YourSurprise home">
+                <span class="grid h-10 w-10 rotate-[-7deg] place-items-center rounded-[14px] bg-coral text-white shadow-[3px_3px_0_#18304b]">
+                    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M12 8v13M3 12h18"/><path d="M12 8H8.5A2.5 2.5 0 1 1 11 5.5C11 7 12 8 12 8zm0 0h3.5A2.5 2.5 0 1 0 13 5.5C13 7 12 8 12 8z"/></svg>
+                </span>
+                <span class="font-rounded text-[27px] font-black tracking-tight">YourSurprise</span>
+            </a>
+            <a href="#cart" class="rounded-full p-2.5 transition hover:bg-[#f7e2e7]" aria-label="Go to cart">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M12 8v13M3 12h18"/><path d="M12 8H8.5A2.5 2.5 0 1 1 11 5.5C11 7 12 8 12 8zm0 0h3.5A2.5 2.5 0 1 0 13 5.5C13 7 12 8 12 8z"/></svg>
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <section id="cart" class="mx-auto max-w-[1280px] px-5 py-14 lg:px-8">
+            <div class="mb-7 flex items-end justify-between gap-4">
+                <div>
+                    <p class="mb-2 text-sm font-bold text-coral">Your basket</p>
+                    <h1 class="font-rounded text-3xl font-black sm:text-4xl">Look up a cart</h1>
+                </div>
+                <p id="cart-range" class="hidden text-sm text-ink/45 sm:block">Loading carts...</p>
+            </div>
+            <div class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_260px]">
+                <div class="soft-card rounded-[28px] border border-ink/[.07] bg-white/90 p-5 shadow-[0_12px_35px_rgba(24,48,75,.06)] backdrop-blur-sm sm:p-7">
+                    <form id="cart-form" class="flex flex-col gap-3 sm:flex-row">
+                        <label class="sr-only" for="cart-id">Cart ID</label>
+                        <input id="cart-id" type="number" min="1" value="1" required class="min-w-0 flex-1 rounded-full border border-ink/15 bg-white px-5 py-3.5 outline-none transition hover:border-ink/25 focus:border-coral focus:ring-4 focus:ring-coral/10" placeholder="Enter cart ID">
+                        <button type="submit" class="group rounded-full bg-ink px-7 py-3.5 text-sm font-bold text-white transition duration-300 hover:-translate-y-0.5 hover:bg-coral hover:shadow-[0_8px_20px_rgba(230,165,179,.20)]">Load cart <span class="ml-2 inline-block transition group-hover:translate-x-1">→</span></button>
+                    </form>
+                    <div id="cart-result" class="mt-6"></div>
+                </div>
+                <aside class="soft-card relative min-h-[190px] overflow-hidden rounded-[28px] border border-ink/[.06] bg-ink p-6 text-white shadow-[0_16px_40px_rgba(24,48,75,.12)]">
+                    <div class="absolute -right-10 -top-10 h-32 w-32 rounded-full border-[18px] border-coral/20"></div>
+                    <h2 class="font-rounded relative text-xl font-black">What goes with it?</h2>
+                    <div id="gift-suggestions" class="relative mt-5 space-y-3 text-sm leading-6 text-white/75"></div>
+                </aside>
+            </div>
+        </section>
+    </main>
+
+    <footer class="border-t border-ink/10 bg-white">
+        <div class="mx-auto flex max-w-[1280px] flex-col gap-4 px-5 py-8 text-sm text-ink/60 sm:flex-row sm:items-center sm:justify-between lg:px-8">
+            <span class="font-rounded text-xl font-black text-ink">YourSurprise</span>
+            <span>For all life's special moments.</span>
+        </div>
+    </footer>
+
+    <dialog id="product-dialog" class="m-auto w-[calc(100%-32px)] max-w-[680px] rounded-[24px] bg-cream p-0">
+        <div id="product-detail" class="p-0"></div>
+    </dialog>
+
+    <script>
+        const euro = n => new Intl.NumberFormat('en-GB', { style:'currency', currency:'EUR' }).format(Number(n));
+        const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[c]);
+
+        async function api(path) {
+            const res = await fetch('/api' + path, { headers: { Accept: 'application/json' } });
+            const body = await res.json();
+            if (!res.ok) throw new Error(body.message || 'Request failed (' + res.status + ')');
+            return body;
+        }
+
+        let cartIds = [];
+
+        async function loadCartBoundary() {
+            try {
+                const body = await api('/carts');
+                cartIds = body.data.map(Number);
+                const input = document.getElementById('cart-id');
+                if (cartIds.length) {
+                    input.min = String(Math.min(...cartIds));
+                    input.max = String(Math.max(...cartIds));
+                    input.value = String(cartIds[0]);
+                    document.getElementById('cart-range').textContent = `${cartIds.length} carts available · IDs ${Math.min(...cartIds)}–${Math.max(...cartIds)}`;
+                } else {
+                    input.disabled = true;
+                    document.getElementById('cart-range').textContent = 'No carts available';
+                }
+            } catch (err) {
+                document.getElementById('cart-range').textContent = 'Cart range unavailable';
+            }
+        }
+
+        document.getElementById('cart-form').onsubmit = async e => {
+            e.preventDefault();
+            const out = document.getElementById('cart-result');
+            const input = document.getElementById('cart-id');
+            const cartId = Number(input.value);
+            if (cartIds.length && !cartIds.includes(cartId)) {
+                out.innerHTML = '<p class="rounded-2xl bg-[#fff0f1] p-4 text-sm font-bold text-coral">Choose an available cart ID.</p>';
+                return;
+            }
+            const suggestions = document.getElementById('gift-suggestions');
+            out.innerHTML = '<div class="skeleton h-32 rounded-2xl"></div>';
+            suggestions.innerHTML = '<div class="space-y-3"><div class="skeleton h-12 rounded-xl"></div><div class="skeleton h-12 rounded-xl"></div><div class="skeleton h-12 rounded-xl"></div></div>';
+            try {
+                const { data:cart } = await api('/carts/' + cartId);
+                const rows = cart.items.map(i => `
+                    <tr class="border-t border-ink/[.07]">
+                        <td class="px-3 py-3 text-sm font-bold">${esc(i.product_name)}</td>
+                        <td class="px-3 py-3 text-right text-sm">${i.quantity}</td>
+                        <td class="px-3 py-3 text-right text-sm">${euro(i.unit_price)}</td>
+                        <td class="px-3 py-3 text-right text-sm">${i.discount_percentage ?? 0}%</td>
+                        <td class="px-3 py-3 text-right text-sm font-bold">${euro(i.final_price)}</td>
+                    </tr>`).join('');
+                out.innerHTML = `
+                    <p class="cart-reveal mb-4 text-sm text-ink/55">Cart #${cart.id}${cart.user?.name ? ` · ${esc(cart.user.name)}` : ''}</p>
+                    <div class="overflow-x-auto">
+                        <table class="cart-reveal w-full min-w-[560px] border-separate border-spacing-0">
+                            <thead><tr class="text-left text-[11px] uppercase tracking-[.12em] text-ink/40"><th class="border-b border-ink/[.07] px-3 pb-3">Product</th><th class="border-b border-ink/[.07] px-3 pb-3 text-right">Qty</th><th class="border-b border-ink/[.07] px-3 pb-3 text-right">Unit price</th><th class="border-b border-ink/[.07] px-3 pb-3 text-right">Discount</th><th class="border-b border-ink/[.07] px-3 pb-3 text-right">Final price</th></tr></thead>
+                            <tbody>${rows || '<tr><td colspan="5" class="p-6 text-center text-sm text-ink/50">This cart is empty.</td></tr>'}</tbody>
+                            <tfoot><tr><th colspan="4" class="px-3 pt-5 text-right text-sm text-ink/55">Total</th><th class="px-3 pt-5 text-right text-lg text-coral">${euro(cart.total)}</th></tr></tfoot>
+                        </table>
+                    </div>`;
+                try {
+                    const giftBody = await api('/carts/' + cartId + '/gift-suggestions');
+                    suggestions.innerHTML = giftBody.data.suggestions.slice(0, 3).map(gift => `
+                        <div class="match-item rounded-2xl border border-white/[.08] bg-white/[.055] px-4 py-3 transition duration-300 hover:-translate-y-0.5 hover:border-coral/30 hover:bg-white/[.08]">
+                            <p class="font-bold leading-5 text-white">${esc(gift.title)}</p>
+                            <p class="mt-1 text-xs leading-5 text-white/55">${esc(gift.reason)}</p>
+                        </div>`).join('');
+                } catch (err) {
+                    suggestions.innerHTML = '';
+                }
+            } catch (err) {
+                out.innerHTML = `<p class="rounded-2xl bg-[#fff0f1] p-4 text-sm font-bold text-coral">${esc(err.message)}</p>`;
+            }
+        };
+
+        loadCartBoundary();
+    </script>
+</body>
+</html>
