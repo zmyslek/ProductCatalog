@@ -1,5 +1,9 @@
-# YourSurprise application assessment 
-Database file can be found in this repository: https://github.com/YourSurpriseCom/database-test 
+# YourSurprise application assessment
+
+Source code: https://github.com/zmyslek/ProductCatalog
+
+The database file can be found in the provided database repository:
+https://github.com/YourSurpriseCom/database-test
 
 ## Backend System (PHP REST API) 
 Develop a PHP application using a framework of your choice that connects to the 
@@ -37,6 +41,10 @@ you opening the code and walking us through.
 
 ## Local setup
 
+The provided SQLite database is included at
+`../database-test/yoursurprise_test.db` relative to the `ProductCatalog`
+directory. Do not replace it with a newly migrated Laravel database.
+
 ```powershell
 cd ProductCatalog
 Copy-Item .env.example .env
@@ -47,13 +55,103 @@ php artisan key:generate
 php artisan serve
 ```
 
-Set `DB_DATABASE` in `.env` to the absolute path of `database-test/yoursurprise_test.db`.
+Set `DB_DATABASE` in `.env` to the absolute path of
+`database-test/yoursurprise_test.db`. For example:
 
-The application starts at `http://localhost:8000` and serves the styled cart frontend
-from `resources/html/index.html`. Product browsing is available at `/products`, and
-product details are available at `/products/{id}`. These pages use the same visual
-language and consume the Laravel API under `/api`.
-The API is available under `/api`: products, categories, carts, and cart gift suggestions.
+```dotenv
+DB_CONNECTION=sqlite
+DB_DATABASE=C:\path\to\YourSurprise-test\database-test\yoursurprise_test.db
+```
+
+Alternatively, when running commands from `ProductCatalog`, the relative
+value in `.env.example` resolves to the same database:
+
+```dotenv
+DB_DATABASE=../database-test/yoursurprise_test.db
+```
+
+Verify that the database file exists before starting the application:
+
+```powershell
+Test-Path ..\database-test\yoursurprise_test.db
+```
+
+The command should return `True`.
+
+## Frontend
+
+The frontend is a JavaScript single-page interface served by Laravel. It does
+not require a separate frontend server:
+
+- Home: http://localhost:8000/
+- Product catalogue: http://localhost:8000/products
+- Product details: http://localhost:8000/products/{id}
+- Cart lookup: http://localhost:8000/cart
+
+Run `npm run build` after changing frontend assets. The frontend calls the
+Laravel API under `/api`.
+
+## REST API examples
+
+List active products with pagination:
+
+```http
+GET http://localhost:8000/api/products?per_page=10
+Accept: application/json
+```
+
+Retrieve full product details, including the category name:
+
+```http
+GET http://localhost:8000/api/products/1
+Accept: application/json
+```
+
+Retrieve a cart with product names, quantities, discounted line prices, and
+the cart total:
+
+```http
+GET http://localhost:8000/api/carts/1
+Accept: application/json
+```
+
+The cart response contains `items[].product_name`, `items[].quantity`,
+`items[].discount_percentage`, `items[].final_price`, and `total`.
+
+Gift suggestions are available through the bonus endpoint:
+
+```http
+GET http://localhost:8000/api/carts/1/gift-suggestions
+Accept: application/json
+```
+
+Set `GEMINI_API_KEY` in `.env` to enable this endpoint. If the provider is
+not configured or returns invalid data, the API responds with HTTP 503 and
+logs the provider failure; the cart itself remains available.
+
+## Architecture
+
+- Laravel provides the REST API and serves the frontend pages.
+- Eloquent models map the provided singular SQLite tables, including `product`,
+  `category`, `cart`, and `cart_items`.
+- API resources define the JSON representation returned to the frontend.
+- `GiftSuggestionService` builds a cart-based prompt and uses the `LlmClient`
+  abstraction with Gemini as the configured provider.
+- The browser communicates with Laravel using JSON requests under `/api`.
+
+## Manual frontend verification
+
+1. Start the application with `php artisan serve`.
+2. Open http://localhost:8000/cart.
+3. Confirm that available cart IDs are loaded.
+4. Enter a valid Cart ID and confirm that product name, quantity, unit price,
+   discount, final price, and total are displayed.
+5. Enter an unavailable Cart ID and confirm that a clear validation message is
+   shown.
+6. With `GEMINI_API_KEY` configured, confirm that gift suggestions appear.
+   Without a configured provider, confirm that the cart remains visible and the
+   suggestions area reports the temporary unavailability.
+
 For Docker, use `docker compose up --build`; the compose file mounts the database at
 `/data/yoursurprise_test.db`. Do not commit `.env` or API keys.
 
