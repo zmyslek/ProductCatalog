@@ -51,15 +51,21 @@ Set `DB_DATABASE` in `.env` to the absolute path of `database-test/yoursurprise_
 
 ## SonarQube
 
-From the workspace root, start SonarQube and PostgreSQL:
+From the workspace root, start PostgreSQL and SonarQube:
 
 ```powershell
-docker compose up -d
+docker compose -f compose.sonar.yml up -d
 ```
 
-Open `http://localhost:9000` and change the default `admin` password. Create a local project with key `YourSurprise_ProductCatalog`, then generate a token. Install SonarScanner and run:
+Open `http://localhost:9000`. The project key is `YourSurprise_ProductCatalog`.
+
+Create a SonarQube token and run the configured scanner:
 
 ```powershell
-cd ProductCatalog
-sonar-scanner "-Dsonar.host.url=http://localhost:9000" "-Dsonar.token=<token>"
+docker run --rm --network yoursurprise-sonar_default `
+  -v "${PWD}/ProductCatalog:/usr/src" `
+  sonarsource/sonar-scanner-cli:latest `
+  -Dsonar.host.url=http://sonarqube:9000 `
+  -Dsonar.token=<token> `
+  -Dsonar.projectBaseDir=/usr/src
 ```
