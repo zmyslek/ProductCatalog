@@ -1,0 +1,26 @@
+name: yoursurprise-app
+
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: ProductCatalog/Dockerfile
+    init: true
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../database-test:/data
+    environment:
+      APP_URL: http://localhost:8000
+      APP_ENV: production
+      APP_DEBUG: "false"
+      APP_KEY: base64:ndBodcl7Q8/b8E2xwWx//QRgXdcLtlKZMQFIrF7L9qs=
+      DB_CONNECTION: sqlite
+      DB_DATABASE: /data/yoursurprise_test.db
+      CACHE_STORE: file
+      SESSION_DRIVER: file
+    healthcheck:
+      test: ["CMD", "php", "-r", "exit(@fsockopen('127.0.0.1',8000)?0:1);"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
